@@ -8,30 +8,33 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import com.mobileapp.generaladapterdemo.Adapter.AppGeneralAdapter
-import com.mobileapp.generaladapterdemo.CallBack.ItemClickListener
 import com.mobileapp.generaladapterdemo.ViewHolder.ItemViewHolder
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var  listener : ItemClickListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setUpCallBack()
 
         val mListItems = prepareListItems()
 
-        val mAppGeneralAdapter = object : AppGeneralAdapter<String>(mListItems){
-            override fun onBind(viewHolder: RecyclerView.ViewHolder, item: String, position: Int) {
+        val mAppGeneralAdapter = object : AppGeneralAdapter<String,ItemViewHolder>(mListItems){
 
+
+            override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+                val item = mListItems[position]
+                holder.onBind(item)
             }
 
-            override fun onCreate(parent: ViewGroup, i: Int): RecyclerView.ViewHolder {
+            override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ItemViewHolder {
+
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.item_view, parent, false)
-                return ItemViewHolder<String>(view,listener)
+                return ItemViewHolder(view){
+                    showToast("Item Clicked at position = $it")
+                }
             }
         }
 
@@ -40,21 +43,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun setUpCallBack(){
-        listener = object : ItemClickListener{
-            override fun onItemClick(position: Int) {
-                showToast("Item Clicked at position = $position")
-            }
-
-        }
-    }
 
     private fun showToast(message :String?){
         Toast.makeText(this@MainActivity,message,Toast.LENGTH_SHORT).show()
     }
 
-    private fun prepareListItems() :MutableList<String> {
-        val mListItems :MutableList<String> = ArrayList()
+    private fun prepareListItems() :MutableList<String?> {
+        val mListItems :MutableList<String?> = ArrayList()
 
         for(i in 1..10){
             mListItems.add("List Item $i")
